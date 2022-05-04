@@ -3,15 +3,25 @@ import { useTable, useGlobalFilter, useFilters } from 'react-table'
 import MOCK_DATA from './MOCK_DATA.json'
 import { COLUMNS } from './columns'
 import { GlobalFilter } from './GlobalFilter'
+import { ColumnFilter } from './ColumnFilter'
 
 export const FilteringTable = () => {
 
     const columns = useMemo(() => COLUMNS, [])
     const data = useMemo(() => MOCK_DATA, [])
 
+    // Column 에서 적용할 필터를 여기서 한번에 적용할 수 있다.
+    const defaultColumn = useMemo((...args) => {
+            console.log(args, 'args')    
+        return {
+                Filter: ColumnFilter
+            }
+    }, [])
+
     const tableInstance = useTable({
         columns,
-        data
+        data,
+        defaultColumn
     }, useFilters, useGlobalFilter)
 
     const {getTableProps, getTableBodyProps, headerGroups, footerGroups, rows, prepareRow, state, setGlobalFilter} = tableInstance
