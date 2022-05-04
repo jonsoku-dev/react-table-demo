@@ -1,48 +1,38 @@
 import React, { useMemo } from "react";
-import { useTable, useGlobalFilter, useFilters } from "react-table";
+import { useTable, usePagination } from "react-table";
 import MOCK_DATA from "./MOCK_DATA.json";
 import { COLUMNS } from "./columns";
-import { GlobalFilter } from "./GlobalFilter";
-import { ColumnFilter } from "./ColumnFilter";
 
-export const FilteringTable = () => {
+export const PagenationTable = () => {
     const columns = useMemo(() => COLUMNS, []);
     const data = useMemo(() => MOCK_DATA, []);
-
-    // Column 에서 적용할 필터를 여기서 한번에 적용할 수 있다.
-    const defaultColumn = useMemo((...args) => {
-        console.log(args, "args");
-        return {
-            Filter: ColumnFilter
-        };
-    }, []);
 
     const tableInstance = useTable(
         {
             columns,
-            data,
-            defaultColumn
+            data
         },
-        useFilters,
-        useGlobalFilter
+        usePagination
     );
 
     const {
         getTableProps,
         getTableBodyProps,
         headerGroups,
-        footerGroups,
-        rows,
-        prepareRow,
+        page,
+        nextPage,
+        previousPage,
+        canNextPage,
+        canPreviousPage,
+        pageOptions,
         state,
-        setGlobalFilter
+        prepareRow
     } = tableInstance;
 
-    const { globalFilter } = state;
+    const { pageIndex } = state;
 
     return (
-        <>
-            <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
+        <div>
             <table {...getTableProps()}>
                 <thead>
                     {headerGroups.map((headerGroup) => (
@@ -50,19 +40,13 @@ export const FilteringTable = () => {
                             {headerGroup.headers.map((column) => (
                                 <th {...column.getHeaderProps()}>
                                     {column.render("Header")}
-                                    {/* Render the columns filter UI */}
-                                    <div>
-                                        {column.canFilter
-                                            ? column.render("Filter")
-                                            : null}
-                                    </div>
                                 </th>
                             ))}
                         </tr>
                     ))}
                 </thead>
                 <tbody {...getTableBodyProps()}>
-                    {rows.map((row) => {
+                    {page.map((row) => {
                         prepareRow(row);
                         return (
                             <tr {...row.getRowProps()}>
@@ -77,18 +61,24 @@ export const FilteringTable = () => {
                         );
                     })}
                 </tbody>
-                <tfoot>
-                    {footerGroups.map((footerGroup) => (
-                        <tr {...footerGroup.getFooterGroupProps()}>
-                            {footerGroup.headers.map((column) => (
-                                <td {...column.getFooterProps()}>
-                                    {column.render("Footer")}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                </tfoot>
             </table>
-        </>
+            <div>
+                <span>
+                    Page{" "}
+                    <strong>
+                        {pageIndex + 1} of {pageOptions.length}
+                    </strong>
+                </span>
+                <button
+                    disabled={!canPreviousPage}
+                    onClick={() => previousPage()}
+                >
+                    Previous
+                </button>
+                <button disabled={!canNextPage} onClick={() => nextPage()}>
+                    Next
+                </button>
+            </div>
+        </div>
     );
 };
