@@ -10,7 +10,8 @@ export const PagenationTable = () => {
     const tableInstance = useTable(
         {
             columns,
-            data
+            data,
+            initialState: { pageIndex: 2 }
         },
         usePagination
     );
@@ -25,6 +26,8 @@ export const PagenationTable = () => {
         canNextPage,
         canPreviousPage,
         pageOptions,
+        gotoPage,
+        pageCount,
         state,
         prepareRow
     } = tableInstance;
@@ -69,6 +72,22 @@ export const PagenationTable = () => {
                         {pageIndex + 1} of {pageOptions.length}
                     </strong>
                 </span>
+                <span>
+                    | Go to Page:{" "}
+                    <input
+                        type="number"
+                        defaultValue={pageIndex + 1}
+                        onChange={(e) => {
+                            const pageNumber = e.target.value
+                                ? Number(e.target.value) - 1
+                                : 0;
+                            gotoPage(pageNumber);
+                        }}
+                    />
+                </span>
+                <button disabled={!canPreviousPage} onClick={() => gotoPage(0)}>
+                    {"<<"}
+                </button>
                 <button
                     disabled={!canPreviousPage}
                     onClick={() => previousPage()}
@@ -77,6 +96,12 @@ export const PagenationTable = () => {
                 </button>
                 <button disabled={!canNextPage} onClick={() => nextPage()}>
                     Next
+                </button>
+                <button
+                    disabled={!canNextPage}
+                    onClick={() => gotoPage(pageCount - 1)}
+                >
+                    {">>"}
                 </button>
             </div>
         </div>
